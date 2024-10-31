@@ -10,15 +10,29 @@ A lightweight, language-agnostic tool for live browser reloading. Tera watches y
 - **Universal File Support**: 
   - HTML, CSS, and JavaScript
   - Images, PDFs, and other static assets
-  - Any file type your browser can render
 - **Partial Re-rendering**: Smart updates that only refresh changed components
-- **Language Agnostic**: Works with any programming language or build pipeline
+- **Language Agnostic**: Works with any build pipeline
 - **Zero Configuration**: Just point it at your files and start developing
 
 ## Installation
 
 ```bash
 go install github.com/kjabin/tera
+```
+
+## Usage
+
+### Basic Command
+```bash
+tera [ENTRYPOINT] 
+```
+
+### Options
+```bash
+    --port      Specify the port number (default: 8080)
+    --watch     Specify the root directory to be watched (default: ".")
+    --exts      Filter file types to be watched (default: all)
+    --help      Show help information
 ```
 
 ## Quick Start
@@ -33,22 +47,7 @@ cd project-dir
 tera index.html 
 ```
 
-3. Open your browser at `http://localhost:8080`
-
-## Usage
-
-### Basic Command
-```bash
-tera [FILENAME] 
-```
-
-### Options
-```bash
-    --port      Specify the port number (default: 3000)
-    --watch-dir Specify the root directory to be watched (default: ".")
-    --exts      Filter file types to be watched (default: all)
-    --help      Show help information
-```
+3. Open your browser at `http://localhost:8080/tera`
 
 ## How It Works
 
