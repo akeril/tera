@@ -1,10 +1,15 @@
 package main
 
+import "log"
+
 func main() {
 
-	cfg := NewConfig()
+	cfg, err := ParseConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	runner := NewRunnerWithConfig(&cfg)
+	runner := NewRunnerWithConfig(cfg)
 
 	runner.Run()
 }

@@ -3,21 +3,17 @@ package main
 import (
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type Runner struct {
-	cfg    *Config
+	cfg    Config
 	server *http.Server
 }
 
-func NewRunner() *Runner {
-	cfg := NewConfig()
-	return NewRunnerWithConfig(&cfg)
-}
-
-func NewRunnerWithConfig(cfg *Config) *Runner {
+func NewRunnerWithConfig(cfg Config) *Runner {
 	server := http.Server{
-		Addr: ":" + cfg.Port,
+		Addr: ":" + strconv.Itoa(cfg.Port),
 	}
 	return &Runner{
 		cfg:    cfg,
@@ -26,6 +22,7 @@ func NewRunnerWithConfig(cfg *Config) *Runner {
 }
 
 func (r *Runner) Run() {
+	log.Println("Listening on port", r.cfg.Port)
 	http.Handle("GET /", http.FileServer(http.Dir(r.cfg.WatchDir)))
 
 	if err := r.server.ListenAndServe(); err != nil {
