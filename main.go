@@ -9,7 +9,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	runner := NewRunnerWithConfig(cfg)
+	runner, err := NewRunnerWithConfig(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	runner.Run()
 }
