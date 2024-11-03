@@ -25,6 +25,8 @@ func (r *Runner) Run() {
 	// watch fs for changes
 	go r.watcher.Watch()
 
+	go r.server.BroadcastEvents(r.watcher.eventCh)
+
 	// serve http requests
 	r.server.Serve()
 }

@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+  <body>
+    <script>
+      const ws = new WebSocket("ws://localhost:5199/__internal/ws");
+      const html = document.querySelector("html");
+      ws.addEventListener("open", (e) => {
+        console.log("Websocket connection established!");
+      });
+      ws.addEventListener("close", (e) => {
+        console.log("Websocket connection terminated!");
+        html.innerHTML = "<p> Connection terminated!</p>";
+      });
+      ws.addEventListener("message", async (e) => {
+        console.log(e.data);
+      });
+
+      // initial data fetch
+      (async () => {
+        const resp = await fetch("test.html");
+        const data = await resp.text();
+        html.innerHTML = data;
+      })();
+    </script>
+  </body>
+</html>
