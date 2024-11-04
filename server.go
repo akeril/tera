@@ -93,7 +93,7 @@ func (s Server) handleWS(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s Server) Serve() {
-	log.Println("Listening on port", s.port)
+	log.Printf("Listening on http://localhost:%d/tera", s.port)
 	if err := s.server.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}
