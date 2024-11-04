@@ -35,7 +35,6 @@ func NewServer(port int, watchDir string) Server {
 	http.HandleFunc("GET /__internal/ws", server.handleWS)
 
 	return server
-
 }
 
 //go:embed templates/*
@@ -93,12 +92,16 @@ func (s Server) BroadcastEvents(ch chan fsnotify.Event) {
 	for event := range ch {
 		log.Println(event)
 		data, _ := json.Marshal(event)
+		s.BroadcastEvent(ch, data)
+	}
+}
 
-		s.mu.Lock()
-		for conn := range s.clients {
-			log.Printf("Broadcasting event to %v\n", conn.RemoteAddr())
-			conn.WriteMessage(websocket.TextMessage, data)
-		}
-		s.mu.Unlock()
+// separate function because defer is function scoped
+func (s Server) BroadcastEvent(ch chan fsnotify.Event, data []byte) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for conn := range s.clients {
+		log.Printf("Broadcasting event to %v\n", conn.RemoteAddr())
+		conn.WriteMessage(websocket.TextMessage, data)
 	}
 }
