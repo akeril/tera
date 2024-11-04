@@ -7,7 +7,7 @@ type Runner struct {
 }
 
 func NewRunnerWithConfig(cfg Config) (*Runner, error) {
-	watcher, err := NewWatcher()
+	watcher, err := NewWatcher(cfg.Exts)
 	if err != nil {
 		return nil, err
 	}
