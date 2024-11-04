@@ -1,10 +1,9 @@
 package main
 
 import (
-	"embed"
 	"encoding/json"
 	"fmt"
-	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -40,25 +39,17 @@ func NewServer(port int, watchDir string, entrypoint string) Server {
 	return server
 }
 
-//go:embed templates/*
-var fs embed.FS
-
 // handle default screen for tera
 func (s Server) handleDefault(w http.ResponseWriter, r *http.Request) {
-	templ, err := template.ParseFiles("templates/templ.html")
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	type Config struct {
-		Uri        string
-		Entrypoint string
-	}
-	templ.Execute(w, Config{
+	template, err := generateTemplate(TemplConfig{
 		Uri:        fmt.Sprintf("ws://localhost:%d/__internal/ws", s.port),
 		Entrypoint: s.entrypoint,
 	})
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	io.Copy(w, template)
 }
 
 // handles incoming websocket requests
