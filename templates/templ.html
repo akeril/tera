@@ -22,7 +22,7 @@
 
         // if entrypoint changes, reload the entire page
         if (url == "{{.Entrypoint}}") {
-          location.reload();
+          loadEntryPoint();
           return;
         }
 
@@ -41,11 +41,13 @@
       }
 
       // initial data fetch
-      (async () => {
+      async function loadEntryPoint() {
         const resp = await fetch("{{.Entrypoint}}");
         const data = await resp.text();
         html.innerHTML = data;
-      })();
+      }
+
+      loadEntryPoint();
     </script>
   </body>
 </html>
