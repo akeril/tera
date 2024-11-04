@@ -52,13 +52,17 @@ async function loadEntryPoint() {
 
   if (entryPoint.endsWith(".pdf")) {
     data = `
-    <object 
-      data="${entryPoint}" 
-      type="application/pdf" 
-      style="width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; border: none;"
-    >
-    </object>
-  `;
+      <object 
+        data="${entryPoint}" 
+        type="application/pdf" 
+        style="width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; border: none;"
+      >
+      </object>
+    `;
+  } else if (entryPoint.endsWith(".png") || entryPoint.endsWith(".jpg")) {
+    data = `
+      <img src="${entryPoint}" style="display: block; margin: 0 auto;" alt="Centered image">
+    `;
   } else {
     const resp = await fetch("{{.Entrypoint}}");
     data = await resp.text();
