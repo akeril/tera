@@ -46,7 +46,13 @@ func ParseConfig() (Config, error) {
 }
 
 func parseExts(exts string) []string {
-	return strings.Split(exts, ",")
+	extensions := make([]string, 0)
+	for _, ext := range strings.Split(exts, ",") {
+		if ext != "" {
+			extensions = append(extensions, ext)
+		}
+	}
+	return extensions
 }
 
 func (c Config) Validate() error {
