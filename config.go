@@ -5,17 +5,20 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 )
 
 type Config struct {
 	Port       int
 	WatchDir   string
 	Entrypoint string
+	Exts       []string
 }
 
 func ParseConfig() (Config, error) {
 	port := flag.Int("port", 5199, "Specify the port number")
 	watch := flag.String("watch", ".", "Specify the directory to be watched")
+	exts := flag.String("exts", "", "Specify file extensions to be filtered to")
 
 	flag.Usage = func() {
 		fmt.Println("Render file changes in the browser")
@@ -33,11 +36,17 @@ func ParseConfig() (Config, error) {
 		Port:       *port,
 		WatchDir:   *watch,
 		Entrypoint: entrypoint,
+		Exts:       parseExts(*exts),
 	}
+
 	if err := cfg.Validate(); err != nil {
 		return Config{}, err
 	}
 	return cfg, nil
+}
+
+func parseExts(exts string) []string {
+	return strings.Split(exts, ",")
 }
 
 func (c Config) Validate() error {
