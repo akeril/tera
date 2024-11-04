@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -14,21 +15,23 @@ import (
 )
 
 type Server struct {
-	server  *http.Server
-	port    int
-	clients map[*websocket.Conn]bool
-	mu      *sync.RWMutex
+	server     *http.Server
+	port       int
+	clients    map[*websocket.Conn]bool
+	mu         *sync.RWMutex
+	entrypoint string
 }
 
-func NewServer(port int, watchDir string) Server {
+func NewServer(port int, watchDir string, entrypoint string) Server {
 	// define http handlers
 	server := Server{
 		server: &http.Server{
 			Addr: ":" + strconv.Itoa(port),
 		},
-		port:    port,
-		mu:      &sync.RWMutex{},
-		clients: make(map[*websocket.Conn]bool),
+		port:       port,
+		mu:         &sync.RWMutex{},
+		clients:    make(map[*websocket.Conn]bool),
+		entrypoint: entrypoint,
 	}
 	http.Handle("GET /", http.FileServer(http.Dir(watchDir)))
 	http.HandleFunc("GET /tera", server.handleDefault)
@@ -44,10 +47,18 @@ var fs embed.FS
 func (s Server) handleDefault(w http.ResponseWriter, r *http.Request) {
 	templ, err := template.ParseFiles("templates/templ.html")
 	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	templ.Execute(w, nil)
+	type Config struct {
+		Uri        string
+		Entrypoint string
+	}
+	templ.Execute(w, Config{
+		Uri:        fmt.Sprintf("ws://localhost:%d/__internal/ws", s.port),
+		Entrypoint: s.entrypoint,
+	})
 }
 
 // handles incoming websocket requests

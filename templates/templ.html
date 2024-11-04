@@ -2,7 +2,7 @@
 <html>
   <body>
     <script>
-      const ws = new WebSocket("ws://localhost:5199/__internal/ws");
+      const ws = new WebSocket("{{.Uri}}");
       const html = document.querySelector("html");
       ws.addEventListener("open", (e) => {
         console.log("Websocket connection established!");
@@ -21,7 +21,7 @@
         const url = event.Name.substr(2);
 
         // if entrypoint changes, reload the entire page
-        if (url == "test.html") {
+        if (url == "{{.Entrypoint}}") {
           location.reload();
           return;
         }
@@ -42,7 +42,7 @@
 
       // initial data fetch
       (async () => {
-        const resp = await fetch("test.html");
+        const resp = await fetch("{{.Entrypoint}}");
         const data = await resp.text();
         html.innerHTML = data;
       })();

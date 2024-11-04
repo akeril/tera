@@ -13,7 +13,7 @@ func NewRunnerWithConfig(cfg Config) (*Runner, error) {
 	}
 	watcher.Add(cfg.WatchDir)
 
-	server := NewServer(cfg.Port, cfg.WatchDir)
+	server := NewServer(cfg.Port, cfg.WatchDir, cfg.Entrypoint)
 	return &Runner{
 		cfg:     cfg,
 		watcher: watcher,

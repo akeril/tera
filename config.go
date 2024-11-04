@@ -8,8 +8,9 @@ import (
 )
 
 type Config struct {
-	Port     int
-	WatchDir string
+	Port       int
+	WatchDir   string
+	Entrypoint string
 }
 
 func ParseConfig() (Config, error) {
@@ -26,9 +27,12 @@ func ParseConfig() (Config, error) {
 
 	flag.Parse()
 
+	entrypoint := flag.Arg(0)
+
 	cfg := Config{
-		Port:     *port,
-		WatchDir: *watch,
+		Port:       *port,
+		WatchDir:   *watch,
+		Entrypoint: entrypoint,
 	}
 	if err := cfg.Validate(); err != nil {
 		return Config{}, err
@@ -42,6 +46,12 @@ func (c Config) Validate() error {
 	}
 	if _, err := os.Stat(c.WatchDir); err != nil {
 		return errors.New("Configuration error: Directory not found")
+	}
+	if c.Entrypoint == "" {
+		return errors.New("Configuration error: Entrypoint positional field required!")
+	}
+	if _, err := os.Stat(c.Entrypoint); err != nil {
+		return errors.New("Configuration error: Entrypoint not found")
 	}
 	return nil
 }
