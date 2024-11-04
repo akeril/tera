@@ -44,9 +44,25 @@ function renderUpdates(tag, url) {
 
 // initial data fetch
 async function loadEntryPoint() {
-  const resp = await fetch("{{.Entrypoint}}");
-  const data = await resp.text();
+  const entryPoint = "{{.Entrypoint}}";
   const html = document.querySelector("html");
+
+  let data;
+  // handle html content
+
+  if (entryPoint.endsWith(".pdf")) {
+    data = `
+    <object 
+      data="${entryPoint}" 
+      type="application/pdf" 
+      style="width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; border: none;"
+    >
+    </object>
+  `;
+  } else {
+    const resp = await fetch("{{.Entrypoint}}");
+    data = await resp.text();
+  }
   html.innerHTML = data;
 }
 
