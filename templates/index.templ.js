@@ -37,9 +37,13 @@ function reload(event) {
 function renderUpdates(tag, url) {
   const elements = document.querySelectorAll(`[${tag}*="${url}"]`);
   for (let element of elements) {
-    const newUrl = `${url}?t=${new Date().getTime()}`;
-    element.setAttribute(tag, newUrl);
+    element.setAttribute(tag, stamp(url));
   }
+}
+
+// add timestamp to url
+function stamp(url) {
+  return `${url}?t=${new Date().getTime()}`;
 }
 
 // initial data fetch
@@ -53,7 +57,7 @@ async function loadEntryPoint() {
   if (entryPoint.endsWith(".pdf")) {
     data = `
       <object 
-        data="${entryPoint}" 
+        data="${stamp(entryPoint)}" 
         type="application/pdf" 
         style="width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; border: none;"
       >
@@ -61,7 +65,7 @@ async function loadEntryPoint() {
     `;
   } else if (entryPoint.endsWith(".png") || entryPoint.endsWith(".jpg")) {
     data = `
-      <img src="${entryPoint}" style="display: block; margin: 0 auto;" alt="Centered image">
+      <img src="${stamp(entryPoint)}" style="display: block; margin: 0 auto;" alt="Centered image">
     `;
   } else {
     const resp = await fetch("{{.Entrypoint}}");
