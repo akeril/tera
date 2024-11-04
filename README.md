@@ -29,7 +29,7 @@ tera [ENTRYPOINT]
 
 ### Options
 ```bash
-    --port      Specify the port number (default: 8080)
+    --port      Specify the port number (default: 5199)
     --watch     Specify the root directory to be watched (default: ".")
     --exts      Filter file types to be watched (default: all)
     --help      Show help information
@@ -47,7 +47,7 @@ cd project-dir
 tera index.html 
 ```
 
-3. Open your browser at `http://localhost:8080/tera`
+3. Open your browser at `http://localhost:5199/tera`
 
 ## How It Works
 
