@@ -47,7 +47,7 @@ cd project-dir
 tera index.html 
 ```
 
-3. Open your browser at `http://localhost:5199/tera`
+3. Open your browser at `http://localhost:5199`
 
 ## How It Works
 
