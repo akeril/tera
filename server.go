@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"sync"
 
@@ -19,11 +20,12 @@ type Server struct {
 	clients    map[*websocket.Conn]bool
 	mu         *sync.RWMutex
 	entrypoint string
+	watchDir   string
 }
 
 func NewServer(port int, watchDir string, entrypoint string) Server {
 	// define http handlers
-	server := Server{
+	s := Server{
 		server: &http.Server{
 			Addr: ":" + strconv.Itoa(port),
 		},
@@ -31,25 +33,38 @@ func NewServer(port int, watchDir string, entrypoint string) Server {
 		mu:         &sync.RWMutex{},
 		clients:    make(map[*websocket.Conn]bool),
 		entrypoint: entrypoint,
+		watchDir:   watchDir,
 	}
-	http.Handle("GET /", http.FileServer(http.Dir(watchDir)))
-	http.HandleFunc("GET /tera", server.handleDefault)
-	http.HandleFunc("GET /__internal/ws", server.handleWS)
+	http.HandleFunc("GET /", s.handleRouting)
+	http.HandleFunc("GET /tera", s.handleInternal)
+	return s
+}
 
-	return server
+func (s Server) handleFS(w http.ResponseWriter, r *http.Request) {
+	http.FileServer(http.Dir(s.watchDir)).ServeHTTP(w, r)
 }
 
 // handle default screen for tera
 func (s Server) handleDefault(w http.ResponseWriter, r *http.Request) {
-	template, err := generateTemplate(TemplConfig{
-		Uri:        fmt.Sprintf("ws://localhost:%d/__internal/ws", s.port),
+	html, err := os.ReadFile(s.entrypoint)
+	if err != nil {
+		return
+	}
+	html = injectLink(html)
+	w.Write(html)
+}
+
+func (s Server) handleInternal(w http.ResponseWriter, r *http.Request) {
+	data, err := generateTemplate(TemplConfig{
+		Uri:        fmt.Sprintf("ws://localhost:%v", s.port),
 		Entrypoint: s.entrypoint,
 	})
 	if err != nil {
-		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
-	io.Copy(w, template)
+	w.Header().Add("Content-Type", "text/javascript; charset=utf-8")
+	io.Copy(w, data)
 }
 
 // handles incoming websocket requests
@@ -81,6 +96,18 @@ func (s Server) handleWS(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+}
+
+func (s Server) handleRouting(w http.ResponseWriter, r *http.Request) {
+	if r.Header.Get("Upgrade") == "websocket" {
+		s.handleWS(w, r)
+		return
+	}
+	if r.URL.Path == "/" {
+		s.handleDefault(w, r)
+		return
+	}
+	s.handleFS(w, r)
 }
 
 func (s Server) Serve() {

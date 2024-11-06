@@ -18,12 +18,8 @@ type TemplConfig struct {
 
 func generateTemplate(cfg TemplConfig) (io.ReadWriter, error) {
 	wr := new(bytes.Buffer)
-	templ, err := template.ParseFS(fs, "templates/index.templ.html")
-	if err != nil {
-		return nil, err
-	}
 
-	templ, err = templ.ParseFS(fs, "templates/index.templ.js")
+	templ, err := template.ParseFiles("templates/index.templ.js")
 	if err != nil {
 		return nil, err
 	}

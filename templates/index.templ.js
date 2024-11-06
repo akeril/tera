@@ -1,5 +1,3 @@
-// {{define "script"}}
-
 // add websocket handlers
 const ws = new WebSocket("{{.Uri}}");
 
@@ -75,5 +73,3 @@ async function loadEntryPoint() {
 }
 
 loadEntryPoint();
-
-// {{end}}
