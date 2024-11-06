@@ -1,19 +1,17 @@
-// {{define "script"}}
-
 // add websocket handlers
-const ws = new WebSocket("{{.Uri}}");
+const teraWebSocket = new WebSocket("{{.Uri}}");
 
-ws.addEventListener("open", () => {
+teraWebSocket.addEventListener("open", () => {
   console.log("Websocket connection established!");
 });
 
-ws.addEventListener("close", () => {
+teraWebSocket.addEventListener("close", () => {
   console.log("Websocket connection terminated!");
   const html = document.querySelector("html");
   html.innerHTML = "<p> Connection terminated!</p>";
 });
 
-ws.addEventListener("message", async (e) => {
+teraWebSocket.addEventListener("message", async (e) => {
   const event = JSON.parse(e.data);
   reload(event);
 });
@@ -24,7 +22,7 @@ function reload(event) {
 
   // if entrypoint changes, reload the entire page
   if (url == "{{.Entrypoint}}") {
-    loadEntryPoint();
+    location.reload();
     return;
   }
 
@@ -45,35 +43,3 @@ function renderUpdates(tag, url) {
 function stamp(url) {
   return `${url}?t=${new Date().getTime()}`;
 }
-
-// initial data fetch
-async function loadEntryPoint() {
-  const entryPoint = "{{.Entrypoint}}";
-  const html = document.querySelector("html");
-
-  let data;
-  // handle html content
-
-  if (entryPoint.endsWith(".pdf")) {
-    data = `
-      <object 
-        data="${stamp(entryPoint)}" 
-        type="application/pdf" 
-        style="width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; border: none;"
-      >
-      </object>
-    `;
-  } else if (entryPoint.endsWith(".png") || entryPoint.endsWith(".jpg")) {
-    data = `
-      <img src="${stamp(entryPoint)}" style="display: block; margin: 0 auto;" alt="Centered image">
-    `;
-  } else {
-    const resp = await fetch("{{.Entrypoint}}");
-    data = await resp.text();
-  }
-  html.innerHTML = data;
-}
-
-loadEntryPoint();
-
-// {{end}}
