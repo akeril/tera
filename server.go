@@ -6,7 +6,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"sync"
 
@@ -46,12 +45,14 @@ func (s Server) handleFS(w http.ResponseWriter, r *http.Request) {
 
 // handle default screen for tera
 func (s Server) handleDefault(w http.ResponseWriter, r *http.Request) {
-	html, err := os.ReadFile(s.entrypoint)
+	data, err := generateIndex(TemplConfig{
+		Entrypoint: s.entrypoint,
+	})
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	html = injectLink(html)
-	w.Write(html)
+	w.Write(data)
 }
 
 func (s Server) handleInternal(w http.ResponseWriter, r *http.Request) {

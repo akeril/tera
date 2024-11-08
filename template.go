@@ -3,8 +3,11 @@ package main
 import (
 	"bytes"
 	"embed"
+	"fmt"
 	"html/template"
 	"io"
+	"os"
+	"strings"
 )
 
 //go:embed templates/*
@@ -29,4 +32,22 @@ func generateTemplate(cfg TemplConfig) (io.ReadWriter, error) {
 		return nil, err
 	}
 	return wr, nil
+}
+
+func generateIndex(cfg TemplConfig) ([]byte, error) {
+	if strings.HasSuffix(cfg.Entrypoint, ".html") {
+		html, err := os.ReadFile(cfg.Entrypoint)
+		if err != nil {
+			return nil, err
+		}
+		html = injectLink(html)
+		return html, nil
+	}
+	return nil, nil
+}
+
+func injectLink(html []byte) []byte {
+	script := "<script src='/tera'></script>"
+	inject := fmt.Sprintf("<head>%v</head>", script)
+	return []byte(inject + string(html))
 }
