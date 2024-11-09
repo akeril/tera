@@ -2,8 +2,10 @@ package main
 
 import (
 	"crypto/md5"
+	"io/fs"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/fsnotify/fsnotify"
@@ -34,6 +36,15 @@ func NewWatcher(exts []string) (Watcher, error) {
 // TODO: Add paths recursively
 func (w *Watcher) Add(path string) {
 	w.watcher.Add(path)
+	filepath.WalkDir(path, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			log.Fatal(err)
+		}
+		if d.IsDir() {
+			w.watcher.Add(path)
+		}
+		return nil
+	})
 }
 
 // Watcher watches a set of paths, delivering events on a channel.
@@ -42,6 +53,9 @@ func (w *Watcher) Watch() {
 	for event := range w.watcher.Events {
 		if event.Has(fsnotify.Write) && (len(w.exts) == 0 || hasSuffix(w.exts, event.Name)) && w.cache.HasChanged(event.Name) {
 			w.eventCh <- event
+		}
+		if f, err := os.Stat(event.Name); event.Has(fsnotify.Create) && err == nil && f.IsDir() {
+			w.watcher.Add(event.Name)
 		}
 	}
 }
