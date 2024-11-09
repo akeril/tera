@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+  <head>
+    <title>PDF Viewer</title>
+    <script data="/templates/tera.js"></script>
+  </head>
+  <body>
+    <object
+      data="{{.Entrypoint}}"
+      type="application/pdf"
+      style="
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        border: none;
+      "
+    ></object>
+  </body>
+</html>
