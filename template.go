@@ -11,7 +11,7 @@ import (
 )
 
 //go:embed templates/*
-var fs embed.FS
+var templFS embed.FS
 
 type TemplConfig struct {
 	Uri        string
@@ -21,7 +21,7 @@ type TemplConfig struct {
 func ParseTemplate(file string, cfg TemplConfig) ([]byte, error) {
 	var buf bytes.Buffer
 
-	templ, err := template.ParseFS(fs, file)
+	templ, err := template.ParseFS(templFS, file)
 	if err != nil {
 		return nil, err
 	}
