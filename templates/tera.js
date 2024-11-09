@@ -13,6 +13,7 @@ teraWebSocket.addEventListener("close", () => {
 
 teraWebSocket.addEventListener("message", async (e) => {
   const event = JSON.parse(e.data);
+  console.log(event);
   reload(event);
 });
 
@@ -35,7 +36,9 @@ function reload(event) {
 function renderUpdates(tag, url) {
   const elements = document.querySelectorAll(`[${tag}*="${url}"]`);
   for (let element of elements) {
-    element.setAttribute(tag, stamp(url));
+    const clone = document.createElement(element.tagName);
+    clone.setAttribute(tag, stamp(url));
+    element.parentNode.replaceChild(clone, element);
   }
 }
 
