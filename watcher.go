@@ -41,7 +41,6 @@ func (w *Watcher) Add(path string) {
 			log.Fatal(err)
 		}
 		if d.IsDir() {
-			log.Println("Adding to path", path)
 			w.watcher.Add(path)
 		}
 		return nil
@@ -54,6 +53,9 @@ func (w *Watcher) Watch() {
 	for event := range w.watcher.Events {
 		if event.Has(fsnotify.Write) && (len(w.exts) == 0 || hasSuffix(w.exts, event.Name)) && w.cache.HasChanged(event.Name) {
 			w.eventCh <- event
+		}
+		if f, err := os.Stat(event.Name); event.Has(fsnotify.Create) && err == nil && f.IsDir() {
+			w.watcher.Add(event.Name)
 		}
 	}
 }
