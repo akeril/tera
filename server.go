@@ -35,7 +35,7 @@ func NewServer(port int, watchDir string, entrypoint string) Server {
 		watchDir:   watchDir,
 	}
 	http.HandleFunc("GET /", s.handleRouting)
-	http.HandleFunc("GET /tera", s.handleInternal)
+	http.HandleFunc("GET /tera", s.LiveReload)
 	return s
 }
 
@@ -44,10 +44,8 @@ func (s Server) handleFS(w http.ResponseWriter, r *http.Request) {
 }
 
 // handle default screen for tera
-func (s Server) handleDefault(w http.ResponseWriter, r *http.Request) {
-	data, err := generateIndex(TemplConfig{
-		Entrypoint: s.entrypoint,
-	})
+func (s Server) handleEntryPoint(w http.ResponseWriter, r *http.Request) {
+	data, err := generateIndex(TemplConfig{Entrypoint: s.entrypoint})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -55,7 +53,7 @@ func (s Server) handleDefault(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
-func (s Server) handleInternal(w http.ResponseWriter, r *http.Request) {
+func (s Server) LiveReload(w http.ResponseWriter, r *http.Request) {
 	data, err := generateTemplate(TemplConfig{
 		Uri:        fmt.Sprintf("ws://localhost:%v", s.port),
 		Entrypoint: s.entrypoint,
@@ -105,7 +103,7 @@ func (s Server) handleRouting(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.URL.Path == "/" {
-		s.handleDefault(w, r)
+		s.handleEntryPoint(w, r)
 		return
 	}
 	s.handleFS(w, r)
