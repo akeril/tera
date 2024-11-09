@@ -3,9 +3,9 @@ package main
 import (
 	"bytes"
 	"embed"
+	"errors"
 	"fmt"
 	"html/template"
-	"io"
 	"os"
 	"strings"
 )
@@ -16,38 +16,42 @@ var fs embed.FS
 type TemplConfig struct {
 	Uri        string
 	Entrypoint string
-	Script     []byte
 }
 
-func generateTemplate(cfg TemplConfig) (io.ReadWriter, error) {
-	wr := new(bytes.Buffer)
+func ParseTemplate(file string, cfg TemplConfig) ([]byte, error) {
+	var buf bytes.Buffer
 
-	templ, err := template.ParseFS(fs, "templates/index.templ.js")
+	templ, err := template.ParseFS(fs, file)
 	if err != nil {
 		return nil, err
 	}
 
-	err = templ.Execute(wr, cfg)
+	err = templ.Execute(&buf, cfg)
 	if err != nil {
 		return nil, err
 	}
-	return wr, nil
+	return buf.Bytes(), nil
 }
 
-func generateIndex(cfg TemplConfig) ([]byte, error) {
+func ParseEntryPoint(cfg TemplConfig) ([]byte, error) {
+	var data []byte
+	var err error
+
 	if strings.HasSuffix(cfg.Entrypoint, ".html") {
-		html, err := os.ReadFile(cfg.Entrypoint)
-		if err != nil {
-			return nil, err
-		}
-		html = injectLink(html)
-		return html, nil
+		data, err = os.ReadFile(cfg.Entrypoint)
+	} else if strings.HasSuffix(cfg.Entrypoint, ".pdf") {
+		data, err = ParseTemplate("templates/pdf.templ.html", cfg)
+	} else {
+		data, err = nil, errors.New("Unsupported file type!")
 	}
-	return nil, nil
+	if err != nil {
+		return nil, err
+	}
+	html := injectScript(data, "<script src='/tera'></script>")
+	return html, nil
 }
 
-func injectLink(html []byte) []byte {
-	script := "<script src='/tera'></script>"
+func injectScript(html []byte, script string) []byte {
 	inject := fmt.Sprintf("<head>%v</head>", script)
 	return []byte(inject + string(html))
 }
