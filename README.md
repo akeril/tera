@@ -17,7 +17,7 @@ A lightweight, language-agnostic tool for live browser reloading. Tera watches y
 ## Installation
 
 ```bash
-go install github.com/kjabin/tera
+go install github.com/akeril/tera
 ```
 
 ## Usage

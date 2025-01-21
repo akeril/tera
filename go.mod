@@ -1,4 +1,4 @@
-module github.com/kjabin/tera
+module github.com/akeril/tera
 
 go 1.23.2
 
